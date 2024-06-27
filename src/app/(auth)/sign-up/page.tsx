@@ -64,7 +64,7 @@ const page = () => {
                     <Input
                       {...register("email")}
                       className={cn("min-w-56", {
-                        "focus-visible:ring-rose-600": errors.email,
+                        "focus-visible:ring-red-600": errors.email,
                       })}
                       placeholder="you@example.com"
                     />
@@ -81,7 +81,7 @@ const page = () => {
                     <Input
                       {...register("password")}
                       className={cn("min-w-60", {
-                        "focus-visible:ring-rose-600": errors.password,
+                        "focus-visible:ring-red-600": errors.password,
                       })}
                       placeholder="Password"
                     />
