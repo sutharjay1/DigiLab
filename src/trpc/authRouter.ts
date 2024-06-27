@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, router } from "./trpc";
-import { AuthCredentialsValidator } from "@/lib/validator/schema";
-import { getPayloadClient } from "@/get-payload";
+import { AuthCredentialsValidator } from "../lib/validator/schema";
+import { getPayloadClient } from "../get-payload";
 import { TRPCError } from "@trpc/server";
 
 export const authRouter = router({
@@ -9,9 +9,13 @@ export const authRouter = router({
     .input(AuthCredentialsValidator)
     .mutation(async ({ input }) => {
       const { email, password } = input;
+      const payload = await getPayloadClient({
+        initOptions: {
+          secret: process.env.PAYLOAD_SECRET,
+        },
+      });
 
-      const payload = await getPayloadClient({});
-
+      // check if user already exists
       const { docs: users } = await payload.find({
         collection: "users",
         where: {
@@ -28,7 +32,10 @@ export const authRouter = router({
         data: {
           email,
           password,
-        }
+          role: "user",
+        },
+      });
 
+      return { success: true, sentToEmail: email };
     }),
 });

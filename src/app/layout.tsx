@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/NavBar";
 import Providers from "@/components/Provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,6 +34,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <Toaster />
             <Navbar />
             {children}
           </ThemeProvider>

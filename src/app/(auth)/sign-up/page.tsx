@@ -16,6 +16,7 @@ import {
   TAuthCredentialsValidator,
 } from "@/lib/validator/schema";
 import { trpc } from "@/trpc/client";
+import { toast } from "sonner";
 
 const page = () => {
   const {
@@ -28,9 +29,19 @@ const page = () => {
 
   // const { data } = trpc.anyApiRoute.useQuery();
   // console.log(data);
+  const { mutate, isLoading } = trpc.auth.createPayloadUser.useMutation({
+    onError: (error) => {
+      toast.error(error.message);
+    },
+    onSuccess: ({success, sentToEmail}) => {
+      console.log(success, sentToEmail)
+      toast.success(`Verification email sent to ${sentToEmail}.`);
+      // router.push("/verify-email?to=" + sentToEmail);
+    },
+  });
 
   const onSubmit = ({ email, password }: TAuthCredentialsValidator) => {
-    console.log(email, password);
+    mutate({ email, password });
   };
 
   return (
@@ -80,6 +91,7 @@ const page = () => {
                   <div>
                     <Input
                       {...register("password")}
+                      type="password"
                       className={cn("min-w-60", {
                         "focus-visible:ring-red-600": errors.password,
                       })}
