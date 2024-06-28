@@ -4,7 +4,6 @@ import Link from "next/link";
 // import NavItems from "./NavItems";
 import { buttonVariants } from "./ui/button";
 // import Cart from "./Cart";
-// import { getServerSideUser } from "@/lib/payload-utils";
 import { cookies } from "next/headers";
 import MaxWidthWrapper from "./MaxWithWrapper";
 import { ModeToggle } from "./ToggleTheme";
@@ -12,14 +11,15 @@ import { Icons } from "./Icons";
 import NavItems from "./NavItems";
 import MobileNav from "./MobileNav";
 import Cart from "./Cart";
+import { getServerSideUser } from "@/lib/payloadUtils";
+import UserAccountNav from "./UserAccountNav";
 // import UserAccountNav from "./UserAccountNav";
 // import MobileNav from "./MobileNav";
 
 const Navbar = async () => {
-  //   const nextCookies = cookies()
-  //   const { user } = await getServerSideUser(nextCookies)
+  const nextCookies = cookies();
+  const { user } = await getServerSideUser(nextCookies);
 
-  const user = true;
   return (
     <div className="sticky z-50 top-0 inset-x-0 h-16 border-b border-zinc-200 dark:border-zinc-800 bg-white/75 dark:bg-black/75  backdrop-blur-lg transition-all">
       <header className="relative ">
@@ -54,11 +54,12 @@ const Navbar = async () => {
                 )}
 
                 {user ? null : (
-                  <span className="h-6 w-px bg-zinc-200" aria-hidden="true" />
+                  <span className="h-6 w-px bg-gray-200" aria-hidden="true" />
                 )}
 
-                {user ? // <UserAccountNav user={user} />
-                null : (
+                {user ? (
+                  <UserAccountNav user={user} />
+                ) : (
                   <Link
                     href="/sign-up"
                     className={buttonVariants({
@@ -70,16 +71,18 @@ const Navbar = async () => {
                 )}
 
                 {user ? (
-                  <span className="h-6 w-px bg-zinc-200" aria-hidden="true" />
+                  <span className="h-6 w-px bg-gray-200" aria-hidden="true" />
                 ) : null}
 
                 {user ? null : (
                   <div className="flex lg:ml-6">
-                    <span className="h-6 w-px bg-zinc-200" aria-hidden="true" />
+                    <span className="h-6 w-px bg-gray-200" aria-hidden="true" />
                   </div>
                 )}
 
-                <div className="ml-4 flow-root lg:ml-6"><Cart /></div>
+                <div className="ml-4 flow-root lg:ml-6">
+                  <Cart />
+                </div>
               </div>
               <div className="ml-4 mr-2 flow-root lg:ml-6">
                 <ModeToggle />
