@@ -45,7 +45,7 @@ const NavItem = ({ category, handleOpen, isOpen, isAnyOpen }: NavItemProps) => {
           )}
         >
           <div
-            className="absolute inset-0 top-1/2 light:bg-white  shadow"
+            className="absolute inset-0 top-1/2 light:bg-zinc-50  shadow"
             aria-hidden="true"
           />
 

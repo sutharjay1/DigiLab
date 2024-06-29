@@ -1,4 +1,5 @@
 import MaxWidthWrapper from "@/components/MaxWithWrapper";
+import ProductReel from "@/components/ProductReel";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowDownToLine, CheckCircle, Leaf } from "lucide-react";
 import Link from "next/link";
@@ -29,7 +30,7 @@ export default function Home() {
     <>
       <MaxWidthWrapper>
         <div className="py-20 mx-auto text-center flex flex-col items-center max-w-4xl">
-          <div className="mx-auto mb-4 flex max-w-fit items-center justify-center space-x-2 overflow-hidden rounded-full border border-zinc-200 bg-white px-7 py-2 shadow-md backdrop-blur transition-all hover:border-zinc-300 hover:bg-zinc-100 cursor-default">
+          <div className="mx-auto mb-4 flex max-w-fit items-center justify-center space-x-2 overflow-hidden rounded-full border border-zinc-200 bg-zinc-50 px-7 py-2 shadow-md backdrop-blur transition-all hover:border-zinc-300 hover:bg-zinc-100 cursor-default">
             <p className="text-sm font-semibold text-zinc-800">
               DigiLab is live!
             </p>
@@ -52,11 +53,11 @@ export default function Home() {
           </div>
         </div>
 
-        {/* <ProductReel
-          query={{ sort: 'desc', limit: 4 }}
-          href='/products?sort=recent'
-          title='Brand new'
-        /> */}
+        <ProductReel
+          query={{ sort: "desc", limit: 4 }}
+          href="/products?sort=recent"
+          title="Brand new"
+        />
       </MaxWidthWrapper>
 
       <section className="border-y-[1px] border-zinc-300 light:bg-zinc-50 dark:border-zinc-700/30">
