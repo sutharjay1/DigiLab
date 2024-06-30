@@ -11,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const Page = () => {
   const { items, removeItem } = useCart();
@@ -37,6 +38,15 @@ const Page = () => {
   );
 
   const fee = 9.8;
+
+  const { mutate: createOrder, isLoading } = trpc.payment.useMutation();
+
+  const handleCheckout = () => {
+    createOrder({
+      amount: cartTotal.toString(),
+      currency: "INR",
+    });
+  };
 
   return (
     <div className="">
@@ -242,13 +252,14 @@ const Page = () => {
               <Button
                 // disabled={items.length === 0 || isLoading}
                 // onClick={() => createCheckoutSession({ productIds })}
+                onClick={handleCheckout}
                 className="w-full"
                 size="lg"
               >
-                {/* {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
-                ) : null} */}
                 Checkout
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
+                ) : null}
               </Button>
             </div>
           </section>

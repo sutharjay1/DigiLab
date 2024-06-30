@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import Navbar from "@/components/NavBar";
 import Providers from "@/components/Provider";
 import { Toaster } from "@/components/ui/sonner";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -37,6 +38,11 @@ export default function RootLayout({
             <Toaster />
             <Navbar />
             {children}
+
+            <Script 
+              id="razorpay-checkout-js"
+              src="https://checkout.razorpay.com/v1/checkout.js"
+            />
           </ThemeProvider>
         </Providers>
       </body>

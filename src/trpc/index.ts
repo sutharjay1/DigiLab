@@ -1,10 +1,18 @@
 import { initTRPC } from "@trpc/server";
-import { publicProcedure, router } from "./trpc";
+import { privateProcedure, publicProcedure, router } from "./trpc";
 import { NextResponse } from "next/server";
 import { authRouter } from "./authRouter";
 import { z } from "zod";
 import { QueryValidator } from "../lib/validator/QueryValidator";
 import { getPayloadClient } from "../get-payload";
+import { paymentRouter } from "../lib/razorpay";
+import Razorpay from "razorpay";
+// import { paymentRouter } from "./paymentRouter";
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID!,
+  key_secret: process.env.RAZORPAY_KEY_SECRET!,
+});
 
 export const appRouter = router({
   auth: authRouter,
@@ -65,6 +73,27 @@ export const appRouter = router({
         nextPage: hasNextPage ? nextPage : null,
       };
     }),
+
+  payment: privateProcedure.input(z.object({ amount: z.string(), currency: z.string() })).mutation(async ({ ctx, input }) => {
+      const { user } = ctx;
+
+      const { amount, currency } = input;
+
+      const options = {
+        amount,
+        currency,
+        receipt: "rcp1",
+      };
+
+      const order = await razorpay.orders.create(options);
+      console.log(order);
+
+      return { order };
+    }),
+
+  test: privateProcedure.query(({ ctx }) => {
+    return "hello";
+  }),
 });
 
 export type AppRouter = typeof appRouter;
