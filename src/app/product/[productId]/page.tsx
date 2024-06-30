@@ -68,9 +68,10 @@ const Page = async ({ params }: PageProps) => {
                     <Link
                       href={breadcrumb.href}
                       className={cn(
-                        "font-medium text-sm text-muted-foreground hover:text-zinc-900",
+                        "font-medium text-sm text-muted-foreground hover:text-zinc-900 dark:hover:text-zinc-100",
                         {
-                          "text-zinc-900": i === BREADCRUMBS.length - 1,
+                          "text-zinc-900 dark:text-zinc-100":
+                            i === BREADCRUMBS.length - 1,
                         }
                       )}
                     >
@@ -81,7 +82,7 @@ const Page = async ({ params }: PageProps) => {
                         viewBox="0 0 20 20"
                         fill="currentColor"
                         aria-hidden="true"
-                        className="ml-2 h-5 w-5 flex-shrink-0 text-zinc-300"
+                        className="ml-2 h-5 w-5 flex-shrink-0 text-zinc-300 dark:text-zinc-600"
                       >
                         <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
                       </svg>
@@ -92,14 +93,14 @@ const Page = async ({ params }: PageProps) => {
             </ol>
 
             <div className="mt-4">
-              <h1 className="text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">
+              <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-4xl">
                 {product?.name}
               </h1>
             </div>
 
             <section className="mt-4">
               <div className="flex items-center">
-                <p className="font-medium text-zinc-900">
+                <p className="font-medium text-zinc-900 dark:text-zinc-100">
                   {formatPrice(product?.price)}
                 </p>
 
@@ -133,7 +134,7 @@ const Page = async ({ params }: PageProps) => {
             <div className="aspect-square rounded-lg ">
               <ImageSlider
                 urls={validUrls}
-                className="shadow-sm md:shadow-2xl shadow-zinc-900/50 backdrop-blur-md"
+                className="shadow-sm md:shadow-2xl shadow-zinc-900/50 dark:shadow-zinc-700/25 backdrop-blur-md"
               />
             </div>
           </div>

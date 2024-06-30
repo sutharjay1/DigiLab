@@ -1,3 +1,5 @@
+"use client";
+
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,13 +18,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { Separator } from "./ui/separator";
 import { formatPrice } from "@/lib/utils";
+import { useCart } from "@/hooks/useCart";
+import CartItem from "./CartItem";
+import { ScrollArea } from "./ui/scroll-area";
 
 const Cart = () => {
-  const itemCount = 1;
+  const { items } = useCart();
+  const itemCount = items.length;
 
   const fee = 9.8;
 
-  const cartTotal = 89;
+  const cartTotal = items.reduce(
+    (total, { product }) => total + product.price,
+    0
+  );
 
   return (
     <>
@@ -30,9 +39,9 @@ const Cart = () => {
         <SheetTrigger className="group -m-2 flex items-center p-2">
           <ShoppingCartIcon
             aria-hidden="true"
-            className="h-6 w-6 flex-shrink-0 text-zinc-600 group-hover:text-zinc-700"
+            className="h-6 w-6 flex-shrink-0 text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-700"
           />
-          <span className="ml-2 text-sm font-medium text-zinc-700 group-hover:text-zinc-800">
+          <span className="ml-2 text-sm font-medium text-zinc-700 dark:text-zinc-400 group-hover:text-zinc-800">
             {/* {isMounted ? itemCount : 0} */} {itemCount}
           </span>
         </SheetTrigger>
@@ -43,11 +52,11 @@ const Cart = () => {
           {itemCount > 0 ? (
             <>
               <div className="flex w-full flex-col pr-6">
-                {/* <ScrollArea>
+                <ScrollArea>
                   {items.map(({ product }) => (
                     <CartItem product={product} key={product.id} />
                   ))}
-                </ScrollArea> */}
+                </ScrollArea>
               </div>
               <div className="space-y-4 pr-6">
                 <Separator />
@@ -87,9 +96,18 @@ const Cart = () => {
                 className="relative mb-4 h-60 w-60 text-muted-foreground"
               >
                 <Image
-                  src="/not-found.svg"
+                  src="/not-found-light.svg"
                   fill
                   alt="empty shopping cart hippo"
+                  draggable="false"
+                  className="dark:hidden"
+                />
+                <Image
+                  src="/not-found-dark.svg"
+                  fill
+                  alt="empty shopping cart hippo"
+                  draggable="false"
+                  className="hidden dark:block"
                 />
               </div>
               <div className="text-xl font-semibold">Your cart is empty</div>
