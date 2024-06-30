@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PRODUCT_CATEGORIES } from "@/config";
 import { useCart } from "@/hooks/useCart";
 import { cn, formatPrice } from "@/lib/utils";
@@ -44,10 +45,10 @@ const Page = () => {
           Shopping Cart
         </h1>
 
-        <div className="mt-12 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16">
+        <div className="mt-8 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16">
           <div
             className={cn("lg:col-span-7", {
-              "rounded-lg border-2 border-dashed border-zinc-200 p-12":
+              "rounded-lg border-[1.2px] border-dashed  border-zinc-200 p-12":
                 isMounted && items.length === 0,
             })}
           >
@@ -81,6 +82,33 @@ const Page = () => {
               </div>
             ) : null}
 
+            {!isMounted && items.length === 0 ? (
+              <div className="flex py-6">
+                <div className="flex flex-shrink-0">
+                  <div className="relative h-24 w-24">
+                    <Skeleton className="h-full w-full" />
+                  </div>
+                </div>
+
+                <div className="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
+                  <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
+                    <div className="flex flex-col justify-between space-y-2">
+                      <Skeleton className="h-3 w-full" />
+                      <Skeleton className="h-3 w-full" />
+                      <Skeleton className="h-3 w-full" />
+                    </div>
+
+                    <div className="mt-4 sm:mt-0 sm:pr-9 w-20">
+                      <div className="absolute right-0 top-0">
+                        <Skeleton className="h-6 w-6 rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+                  <Skeleton className="h-3 w-full" />
+                </div>
+              </div>
+            ) : null}
+
             <ul
               className={cn({
                 "divide-y divide-zinc-200 border-b border-t border-zinc-200":
@@ -96,7 +124,7 @@ const Page = () => {
                   const { image } = product.images[0];
 
                   return (
-                    <li key={product.id} className="flex py-6 sm:py-10">
+                    <li key={product.id} className="flex py-6">
                       <div className="flex-shrink-0">
                         <div className="relative h-24 w-24">
                           {typeof image !== "string" && image.url ? (
@@ -160,7 +188,11 @@ const Page = () => {
             </ul>
           </div>
 
-          <section className="mt-16 rounded-lg border-[0.5px] border-zinc-200/20 px-4 py-6 sm:p-6 lg:col-span-5 lg:mt-0 lg:p-8">
+          <section
+            className={cn(
+              "mt-8 rounded-lg border-[0.5px] border-zinc-200/20 px-4 py-6 sm:p-6 lg:col-span-5 lg:mt-0 lg:p-8"
+            )}
+          >
             <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
               Order summary
             </h2>
