@@ -7,12 +7,32 @@ import { QueryValidator } from "../lib/validator/QueryValidator";
 import { getPayloadClient } from "../get-payload";
 import { paymentRouter } from "../lib/razorpay";
 import Razorpay from "razorpay";
+import crypto from "crypto";
+import { PaymentVerificationInput } from "../lib/validator/schema";
+import shortid from "shortid";
 // import { paymentRouter } from "./paymentRouter";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
   key_secret: process.env.RAZORPAY_KEY_SECRET!,
 });
+
+const generatedSignature = (
+  razorpayOrderId: string,
+  razorpayPaymentId: string
+) => {
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  if (!keySecret) {
+    throw new Error(
+      "Razorpay key secret is not defined in environment variables."
+    );
+  }
+  const sig = crypto
+    .createHmac("sha256", keySecret)
+    .update(razorpayOrderId + "|" + razorpayPaymentId)
+    .digest("hex");
+  return sig;
+};
 
 export const appRouter = router({
   auth: authRouter,
@@ -74,26 +94,55 @@ export const appRouter = router({
       };
     }),
 
-  payment: privateProcedure.input(z.object({ amount: z.string(), currency: z.string() })).mutation(async ({ ctx, input }) => {
+  payment: privateProcedure
+    .input(
+      z.object({
+        amount: z.string(),
+        currency: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
       const { user } = ctx;
 
-      const { amount, currency } = input;
+      let { amount: rawAmount, currency } = input;
+
+      const payment_capture = 1;
+
+      rawAmount = rawAmount.replace("₹", "");
+
+      const amount = Math.round(parseFloat(rawAmount) * 100);
+
+      console.log({ amount, type: typeof amount });
 
       const options = {
         amount,
         currency,
-        receipt: "rcp1",
+        receipt: shortid.generate(),
+        payment_capture,
+        
       };
 
-      const order = await razorpay.orders.create(options);
-      console.log(order);
-
-      return { order };
+      try {
+        const order = await razorpay.orders.create(options);
+        console.log(order);
+        return { order };
+      } catch (error) {
+        console.error("Error creating Razorpay order:", error);
+        throw new Error("Failed to create Razorpay order");
+      }
     }),
+  paymentVerify: privateProcedure
+    .input(PaymentVerificationInput)
+    .mutation(async ({ input }) => {
+      const { orderCreationId, razorpayPaymentId, razorpaySignature } = input;
 
-  test: privateProcedure.query(({ ctx }) => {
-    return "hello";
-  }),
+      const signature = generatedSignature(orderCreationId, razorpayPaymentId);
+      if (signature !== razorpaySignature) {
+        return { message: "Payment verification failed", isOk: false };
+      }
+
+      return { message: "Payment verified successfully", isOk: true };
+    }),
 });
 
 export type AppRouter = typeof appRouter;

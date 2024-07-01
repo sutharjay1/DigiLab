@@ -39,10 +39,10 @@ export default function RootLayout({
             <Navbar />
             {children}
 
-            <Script 
+            {/* <Script 
               id="razorpay-checkout-js"
               src="https://checkout.razorpay.com/v1/checkout.js"
-            />
+            /> */}
           </ThemeProvider>
         </Providers>
       </body>

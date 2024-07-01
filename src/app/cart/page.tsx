@@ -12,6 +12,28 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import Razorpay from "razorpay";
+import Cookies from "js-cookie";
+import { getPayloadClient } from "../../get-payload";
+import { useCookies } from "next-client-cookies";
+import jwt from "jsonwebtoken";
+import { RazorpayHeaders } from "razorpay/dist/types/api";
+import {
+  RazorpayVerifyPayment,
+  RazorpayVerifyPaymentLink,
+  RazorpayWebhook,
+} from "razorpay/dist/utils/razorpay-utils";
+
+// const razorpay = new Razorpay({
+//   key_id: process.env.RAZORPAY_KEY_ID!,
+//   key_secret: process.env.RAZORPAY_KEY_SECRET!,
+// });
+
+interface IUser {
+  _id: string;
+  email: string;
+  name: string;
+}
 
 const Page = () => {
   const { items, removeItem } = useCart();
@@ -27,6 +49,31 @@ const Page = () => {
 
   const productIds = items.map(({ product }) => product.id);
 
+  const cookies = useCookies();
+
+  const [user, setUser] = useState<IUser>();
+
+  const token = cookies.get("payload-token");
+
+  useEffect(() => {
+    if (token) {
+      const decoded: any = jwt.decode(token);
+      setUser(decoded);
+      console.log(JSON.stringify(decoded, null, 2));
+    }
+  }, [token]);
+
+  // useEffect(() => {
+  //   const getUser = async () => {
+  //     const payload = await getPayloadClient({
+  //       initOptions: {
+  //         secret: process.env.PAYLOAD_SECRET,
+  //       },
+  //     });
+
+  //   };
+  // }, []);
+
   const [isMounted, setIsMounted] = useState<boolean>(false);
   useEffect(() => {
     setIsMounted(true);
@@ -39,12 +86,78 @@ const Page = () => {
 
   const fee = 9.8;
 
-  const { mutate: createOrder, isLoading } = trpc.payment.useMutation();
+  const totalPrice = formatPrice(cartTotal + fee);
 
-  const handleCheckout = () => {
+  // const [order, setOrder] = useState<any>();
+
+  const { mutate: paymentVerify, isLoading: isPaymentVerifying } =
+    trpc.paymentVerify.useMutation({
+      onSuccess: ({ message, isOk }) => {
+        console.log(message, isOk);
+        toast.success(`${message} - ${isOk ? "Success" : "Failed"}`);
+      },
+    });
+
+  const { mutate: createOrder, isLoading } = trpc.payment.useMutation({
+    onSuccess: ({ order }) => {
+      const options = {
+        key: process.env.RAZORPAY_KEY_ID!,
+        name: user?.name,
+        currency: "INR",
+        amount: order.amount,
+        order_id: order.id,
+        description: items[0].product.description,
+        prefill: {
+          name: user?.name,
+          email: user?.email,
+        },
+        handler: function (response: any) {
+          paymentVerify({
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpaySignature: response.razorpay_signature,
+            orderCreationId: order.id,
+          });
+        },
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+
+      paymentObject.on("payment.success", function (response: any) {
+        console.log("payment success", response);
+      });
+
+      paymentObject.on("payment.failed", function (response: any) {
+        toast.error("Payment failed. Please try again.");
+      });
+    },
+    onError: (error) => {
+      toast.error("Failed to initiate payment. Please try again.");
+    },
+  });
+
+  const handleCheckout = async () => {
+    await initializeRazorpay();
+    Number(totalPrice);
     createOrder({
-      amount: cartTotal.toString(),
+      amount: totalPrice,
       currency: "INR",
+    });
+  };
+
+  const initializeRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+
+      document.body.appendChild(script);
     });
   };
 
